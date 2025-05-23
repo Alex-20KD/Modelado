@@ -1,0 +1,39 @@
+{
+    "james": {
+        "rol": "Estudiante",
+        "materias": [
+            "Derecho",
+            "Forence"
+        ]
+    },
+    "israel": {
+        "rol": "Estudiante",
+        "materias": [
+            "AS"
+        ]
+    },
+    "waltter": {
+        "rol": "Estudiante",
+        "materias": [
+            "Derecho"
+        ]
+    },
+    "alex": {
+        "rol": "Profesor",
+        "materias": [
+            "forence"
+        ]
+    },
+    "eliza": {
+        "rol": "Profesor",
+        "materias": [
+            "Forence"
+        ]
+    },
+    "gonzalo": {
+        "rol": "Administrador",
+        "materias": [
+            "ADMIN"
+        ]
+    }
+}
