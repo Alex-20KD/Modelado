@@ -1,52 +1,64 @@
 # controller.py
-from Modelado.src.model import (
-    registrar_usuario,
-    obtener_usuario,
-    obtener_profesores,
-    obtener_estudiantes,
-    obtener_todos_los_usuarios
-)
+from tkinter import messagebox
+import model
 
-def manejar_registro(nombre, rol, materias):
-    if not nombre or not rol or not materias:
-        return False, "Por favor, completa todos los campos."
-
-    registrar_usuario(nombre, rol, materias)
-    return True, f"{nombre} registrado como {rol}"
-
-def manejar_ingreso(nombre, rol):
-    usuario = obtener_usuario(nombre, rol)
-    if not usuario:
-        return None, "Nombre incorrecto o no coincide con el rol."
-
-    nombre, rol, materias_str = usuario
+def registrar(nombre, rol, materias_str, entry_nombre, entry_materias):
+    nombre = nombre.strip().lower()
     materias = [m.strip() for m in materias_str.split(",") if m.strip()]
-    return {"nombre": nombre, "rol": rol, "materias": materias}, None
 
-def obtener_info_estudiante(usuario):
+    if not nombre or not rol or not materias:
+        messagebox.showwarning("Campos vacíos", "Por favor, completa todos los campos.")
+        return
+
+    model.registrar_usuario(nombre, rol, materias)
+    messagebox.showinfo("Registro exitoso", f"{nombre} registrado como {rol}")
+    entry_nombre.delete(0, "end")
+    entry_materias.delete(0, "end")
+
+def entrar_como(nombre, rol):
+    usuario = model.obtener_usuario(nombre, rol)
+    if not usuario:
+        messagebox.showerror("Error", "Nombre incorrecto o no coincide con el rol.")
+        return
+
+    if rol == "Estudiante":
+        mostrar_info_estudiante(usuario)
+    elif rol == "Profesor":
+        mostrar_info_profesor(usuario)
+    elif rol == "Administrador":
+        mostrar_info_admin()
+    else:
+        messagebox.showerror("Error", "Rol no reconocido.")
+
+def mostrar_info_estudiante(usuario_data):
+    nombre, rol, materias_str = usuario_data
+    materias = [m.strip() for m in materias_str.split(",")]
     mensaje = "Eres estudiante. Materias:\n"
-    for materia in usuario["materias"]:
-        profesores = obtener_profesores(materia)
-        prof = profesores[0] if profesores else "Ninguno"
-        mensaje += f"  - {materia} (Profesor: {prof})\n"
-    return mensaje
+    for materia in materias:
+        profesores = model.obtener_profesores(materia)
+        mensaje += f"  - {materia} (Profesor: {profesores[0] if profesores else 'Ninguno'})\n"
+    messagebox.showinfo("Información", mensaje)
 
-def obtener_info_profesor(usuario):
+def mostrar_info_profesor(usuario_data):
+    nombre, rol, materias_str = usuario_data
+    materias = [m.strip() for m in materias_str.split(",")]
     mensaje = "Eres profesor. Materias:\n"
-    for materia in usuario["materias"]:
-        estudiantes = obtener_estudiantes(materia)
-        est = ", ".join(estudiantes) if estudiantes else "Ninguno"
-        mensaje += f"  - {materia} (Estudiantes: {est})\n"
-    return mensaje
+    for materia in materias:
+        estudiantes = model.obtener_estudiantes(materia)
+        mensaje += f"  - {materia} (Estudiantes: {', '.join(estudiantes) if estudiantes else 'Ninguno'})\n"
+    messagebox.showinfo("Información", mensaje)
 
-def obtener_info_admin():
+def mostrar_info_admin():
+    usuarios = model.obtener_todos_los_usuarios()
     mensaje = "Usuarios registrados:\n"
     roles = {"Estudiante": [], "Profesor": [], "Administrador": []}
-    for nombre, rol in obtener_todos_los_usuarios():
+
+    for nombre, rol in usuarios:
         roles[rol].append(nombre)
 
     for rol, nombres in roles.items():
         mensaje += f"\n{rol}s:\n"
-        for n in nombres:
-            mensaje += f"  - {n}\n"
-    return mensaje
+        for nombre in nombres:
+            mensaje += f"  - {nombre}\n"
+
+    messagebox.showinfo("Información", mensaje)
