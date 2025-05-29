@@ -1,42 +1,8 @@
+# interfaz.py
 import tkinter as tk
 from tkinter import messagebox
-import json
-import os
+from operaciones import guardar_usuario, obtener_usuario, obtener_profesores, obtener_estudiantes, obtener_todos_los_usuarios
 
-# Archivo de datos
-ARCHIVO_DATOS = "usuarios.json"
-
-# Cargar datos desde el archivo
-if os.path.exists(ARCHIVO_DATOS):
-    with open(ARCHIVO_DATOS, "r", encoding="utf-8") as f:
-        usuarios = json.load(f)
-else:
-    usuarios = {}
-
-# Guardar datos en el archivo
-def guardar_datos():
-    with open(ARCHIVO_DATOS, "w", encoding="utf-8") as f:
-        json.dump(usuarios, f, indent=4)
-
-# Obtener usuario validando nombre y rol
-def obtener_usuario(nombre, rol):
-    nombre = nombre.strip().lower()
-    if not nombre:
-        return None
-    usuario = usuarios.get(nombre)
-    if usuario and usuario.get("rol") == rol:
-        return usuario
-    return None
-
-# Obtener profesores que enseñan una materia
-def obtener_profesores(materia):
-    return [n for n, d in usuarios.items() if d["rol"] == "Profesor" and materia in d.get("materias", [])]
-
-# Obtener estudiantes que cursan una materia
-def obtener_estudiantes(materia):
-    return [n for n, d in usuarios.items() if d["rol"] == "Estudiante" and materia in d.get("materias", [])]
-
-# Registrar nuevo usuario
 def registrar():
     nombre = entry_nombre.get().strip().lower()
     rol = rol_var.get()
@@ -46,15 +12,13 @@ def registrar():
         messagebox.showwarning("Campos vacíos", "Por favor, completa todos los campos.")
         return
 
-    usuarios[nombre] = {"rol": rol, "materias": materias}
-    guardar_datos()
+    guardar_usuario(nombre, rol, materias)
     messagebox.showinfo("Registro exitoso", f"{nombre} registrado como {rol}")
     entry_nombre.delete(0, tk.END)
     entry_materias.delete(0, tk.END)
 
-# Iniciar sesión según el rol
 def entrar_como(rol):
-    nombre_input = entry_nombre.get()
+    nombre_input = entry_nombre.get().strip().lower()
     usuario_data = obtener_usuario(nombre_input, rol)
 
     if not usuario_data:
@@ -70,7 +34,6 @@ def entrar_como(rol):
     else:
         messagebox.showerror("Error", "Rol no reconocido.")
 
-# Mostrar información del estudiante
 def mostrar_info_estudiante(usuario_data):
     mensaje = "Eres estudiante. Materias:\n"
     for materia in usuario_data.get("materias", []):
@@ -78,7 +41,6 @@ def mostrar_info_estudiante(usuario_data):
         mensaje += f"  - {materia} (Profesor: {profesores[0] if profesores else 'Ninguno'})\n"
     messagebox.showinfo("Información", mensaje)
 
-# Mostrar información del profesor
 def mostrar_info_profesor(usuario_data):
     mensaje = "Eres profesor. Materias:\n"
     for materia in usuario_data.get("materias", []):
@@ -86,19 +48,21 @@ def mostrar_info_profesor(usuario_data):
         mensaje += f"  - {materia} (Estudiantes: {', '.join(estudiantes) if estudiantes else 'Ninguno'})\n"
     messagebox.showinfo("Información", mensaje)
 
-# Mostrar información del administrador
 def mostrar_info_admin():
+    usuarios = obtener_todos_los_usuarios()
     mensaje = "Usuarios registrados:\n"
-    for rol in ["Estudiante", "Profesor", "Administrador"]:
+    roles = {"Estudiante": [], "Profesor": [], "Administrador": []}
+    for nombre, rol in usuarios:
+        roles[rol].append(nombre)
+
+    for rol in roles:
         mensaje += f"\n{rol}s:\n"
-        for nombre, datos in usuarios.items():
-            if datos["rol"] == rol:
-                mensaje += f"  - {nombre}\n"
-    messagebox.showinfo("Información!", mensaje)
+        for nombre in roles[rol]:
+            mensaje += f"  - {nombre}\n"
 
     messagebox.showinfo("Información!", mensaje)
 
-# Interfaz gráfica
+# Interfaz
 ventana = tk.Tk()
 ventana.title("Mini Mundo Escolar")
 ventana.geometry("550x450")
@@ -127,16 +91,12 @@ entry_materias.grid(row=3, column=0, columnspan=2, pady=5, ipadx=50)
 btn_registrar = tk.Button(ventana, text="Registrar Usuario", command=registrar, bg="#4caf50", fg="white", font=("Arial", 12, "bold"))
 btn_registrar.pack(pady=10)
 
-btn_estudiante = tk.Button(ventana, text="Entrar como Estudiante", command=lambda: entrar_como("Estudiante"),
-                           bg="#2196f3", fg="white", font=("Arial", 12, "bold"))
+btn_estudiante = tk.Button(ventana, text="Entrar como Estudiante", command=lambda: entrar_como("Estudiante"), bg="#2196f3", fg="white", font=("Arial", 12, "bold"))
 btn_estudiante.pack(pady=5)
 
-btn_profesor = tk.Button(ventana, text="Entrar como Profesor", command=lambda: entrar_como("Profesor"),
-                         bg="#ff9800", fg="white", font=("Arial", 12, "bold"))
+btn_profesor = tk.Button(ventana, text="Entrar como Profesor", command=lambda: entrar_como("Profesor"), bg="#ff9800", fg="white", font=("Arial", 12, "bold"))
 btn_profesor.pack(pady=5)
 
-btn_admin = tk.Button(ventana, text="Entrar como Administrador", command=lambda: entrar_como("Administrador"),
-                      bg="#9c27b0", fg="white", font=("Arial", 12, "bold"))
+btn_admin = tk.Button(ventana, text="Entrar como Administrador", command=lambda: entrar_como("Administrador"), bg="#9c27b0", fg="white", font=("Arial", 12, "bold"))
 btn_admin.pack(pady=5)
-
 ventana.mainloop()
