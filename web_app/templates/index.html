@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mini Mundo Escolar</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    
+<body>
+    <h1>Mini Mundo Escolar</h1>
+    <form method="POST">
+        <label>Nombre:</label><input name="nombre" required><br>
+        <label>Rol:</label>
+        <select name="rol" required>
+            <option>Estudiante</option>
+            <option>Profesor</option>
+            <option>Administrador</option>
+        </select><br>
+        <label>Materias (separadas por coma):</label><input name="materias"><br>
+        <button type="submit">Registrar</button>
+    </form>
+
+    {% if mensaje %}
+        <p style="color: green;">{{ mensaje }}</p>
+    {% endif %}
+
+    <hr>
+    <h2>Ingresar</h2>
+    <form method="POST" action="/ingresar">
+        <label>Nombre:</label><input name="nombre" required><br>
+        <label>Rol:</label>
+        <select name="rol" required>
+            <option>Estudiante</option>
+            <option>Profesor</option>
+            <option>Administrador</option>
+        </select><br>
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>

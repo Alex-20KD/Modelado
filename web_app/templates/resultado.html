@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Resultado</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    
+<body>
+    <a href="/">← Volver</a>
+    <h2>Resultado</h2>
+    <div>{{ info|safe }}</div>
+</body>
+</html>
