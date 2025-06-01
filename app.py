@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
-import controller_web
+from src import controller_web
+
 
 app = Flask(__name__)
 
@@ -34,5 +35,4 @@ def ingresar():
 
     return render_template("resultado.html", info=info)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
