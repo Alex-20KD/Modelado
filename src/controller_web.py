@@ -1,5 +1,6 @@
 import model
 
+
 def manejar_registro(nombre, rol, materias):
     if not nombre or not rol or not materias:
         return False, "Por favor, completa todos los campos."
